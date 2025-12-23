@@ -1,0 +1,7 @@
+build/
+*.bin
+*.cas
+*.o
+*.lst
+*.sym
+.DS_Store
