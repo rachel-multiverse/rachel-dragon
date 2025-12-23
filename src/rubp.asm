@@ -52,18 +52,48 @@ msg_type_temp   fcb     0
 player_id       fdb     0
 game_id         fdb     0
 
-send_join
-        lda     #MSG_JOIN
+; -----------------------------------------------------------------------------
+; send_hello - Send HELLO message with player name and platform ID
+; -----------------------------------------------------------------------------
+send_hello
+        lda     #MSG_HELLO
         jsr     build_header
+
+        ; Clear payload first
         ldx     #tx_buffer+16
         ldb     #48
         clra
-sj_clear
+sh_clear
         sta     ,x+
         decb
-        bne     sj_clear
+        bne     sh_clear
+
+        ; Copy player name to payload bytes 0-15
+        ldx     #player_name
+        ldy     #tx_buffer+16
+        ldb     #16
+sh_name
+        lda     ,x+
+        beq     sh_name_done    ; Stop at null terminator
+        sta     ,y+
+        decb
+        bne     sh_name
+sh_name_done
+
+        ; Platform ID at payload bytes 16-17 (big-endian)
+        ; Dragon 32/64 = 0x00A0
+        lda     #PLATFORM_ID_HI
+        sta     tx_buffer+32    ; payload+16
+        lda     #PLATFORM_ID_LO
+        sta     tx_buffer+33    ; payload+17
+
         jsr     net_send
         rts
+
+; Default player name (can be overwritten by input)
+player_name     fcc     /DRAGON/
+                fcb     0
+                rmb     9       ; Pad to 16 bytes total
 
 send_ready
         lda     #MSG_READY

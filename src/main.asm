@@ -21,8 +21,8 @@ start
         ; Initialize RUBP
         jsr     rubp_init
 
-        ; Send join request
-        jsr     send_join
+        ; Send HELLO with player name and platform ID
+        jsr     send_hello
 
         ; Wait for game to start
         jsr     wait_for_game
